@@ -1,0 +1,61 @@
+service: aws-node-rest-api-serverless
+
+frameworkVersion: '2'
+
+
+provider:
+    name: aws
+    runtime: nodejs14.x
+    lambdaHashingVersion: '20201221'
+    region: us-east-1
+    iam:
+        role:
+            statements:
+                -Efecct: Allow
+                 Action:
+                    -dynamodb:PutItem
+                    -dynamodb:UpdateItem
+                    -dynamodb:GetItem
+                    -dynamodb:Scan
+                Resources:
+                    -arn:aws:dynamodb:us-east-1:167880115321:table/ItemTable
+functions:
+    insertItem:
+        handler: src/insertItem.handler
+        events:
+            -http:
+                path: /item
+                method: post
+    fetchItems:
+        handler: src/fetchItems.handler
+        events:
+            -http:
+                path: /items
+                method: get
+    fetchItem:
+        handler: src/fetchItem.handler
+        events:
+            -http:
+                path: /items/{id}
+                method: get
+    updateItem:
+        handler: src/updateItem.handler
+        events:
+            -http:
+                path: /items/{id}
+                method: put
+resources:
+    Resources:
+        ItemTableNew:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: ItemTable
+                BillingMode: PAY_PER_REQUEST
+                AttributeDefinitions:
+                    -AttributeName: id
+                     AttributeType: S
+                KeySchema:
+                    -AttributeName: id
+                     AttributeType: HASH
+                
+               
